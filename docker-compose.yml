@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  mysql-8.1.0:
+    image: mysql:8.1.0
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+    command: >
+      mysqld
+      --log-bin=mysql-bin.log
+      --server-id 1
+      --binlog-format=row
+      --gtid_mode=on
+      --enforce-gtid-consistency=on
+    networks:
+      network:
+        ipv4_address: 172.0.0.2
+
+  elasticsearch-8.10.2:
+    image: elasticsearch:8.10.2
+    ports:
+      - "9201:9200"
+    networks:
+      network:
+        ipv4_address: 172.0.0.3
+
+  pymyelarepl:
+    build:
+      context: .
+      dockerfile: pymyelarepl.Dockerfile
+      args:
+        BASE_IMAGE: python:3.12.0rc3-bookworm
+    command: sleep infinity
+    ports:
+      - "3001:3000"
+    networks:
+      network:
+        ipv4_address: 172.0.0.4
+
+networks:
+  network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.0.0.0/24
+          gateway: 172.0.0.1
