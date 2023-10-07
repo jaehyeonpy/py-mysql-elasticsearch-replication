@@ -47,9 +47,9 @@ restart the elasticsearch container, and in the pymyelarepl container,
 the results of the two cases are like the below:
 
 ```
-{'errors': False, 'took': 23, 'items': [{'create': {'_index': 'basic_replication', '_id': '1', '_version': 1, 'result': 'created', '_shards': {'total': 2, 'successful': 1, 'failed': 0}, '_seq_no': 6, '_primary_term': 2, 'status': 201}}]}
-{'errors': False, 'took': 26, 'items': [{'update': {'_index': 'basic_replication', '_id': '1', '_version': 2, 'result': 'updated', '_shards': {'total': 2, 'successful': 1, 'failed': 0}, '_seq_no': 7, '_primary_term': 2, 'status': 200}}]}
-{'errors': False, 'took': 5, 'items': [{'delete': {'_index': 'basic_replication', '_id': '1', '_version': 3, 'result': 'deleted', '_shards': {'total': 2, 'successful': 1, 'failed': 0}, '_seq_no': 8, '_primary_term': 2, 'status': 200}}]}
+{'errors': False, 'took': 12, 'items': [{'create': {'_index': 'basic_replication', '_id': '1', '_version': 1, 'result': 'created', '_shards': {'total': 2, 'successful': 1, 'failed': 0}, '_seq_no': 6, '_primary_term': 1, 'status': 201}}, {'create': {'_index': 'basic_replication', '_id': '2', '_version': 1, 'result': 'created', '_shards': {'total': 2, 'successful': 1, 'failed': 0}, '_seq_no': 7, '_primary_term': 1, 'status': 201}}]}
+{'errors': False, 'took': 11, 'items': [{'update': {'_index': 'basic_replication', '_id': '1', '_version': 2, 'result': 'updated', '_shards': {'total': 2, 'successful': 1, 'failed': 0}, '_seq_no': 8, '_primary_term': 1, 'status': 200}}, {'update': {'_index': 'basic_replication', '_id': '2', '_version': 2, 'result': 'updated', '_shards': {'total': 2, 'successful': 1, 'failed': 0}, '_seq_no': 9, '_primary_term': 1, 'status': 200}}]}
+{'errors': False, 'took': 2, 'items': [{'delete': {'_index': 'basic_replication', '_id': '1', '_version': 3, 'result': 'deleted', '_shards': {'total': 2, 'successful': 1, 'failed': 0}, '_seq_no': 10, '_primary_term': 1, 'status': 200}}, {'delete': {'_index': 'basic_replication', '_id': '2', '_version': 3, 'result': 'deleted', '_shards': {'total': 2, 'successful': 1, 'failed': 0}, '_seq_no': 11, '_primary_term': 1, 'status': 200}}]}
 ```
 
 
