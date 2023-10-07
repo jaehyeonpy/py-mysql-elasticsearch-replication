@@ -26,7 +26,7 @@ class BasicTestCase(unittest.TestCase):
             "passwd": self.config['mysql']['password'],
             "port": self.config['mysql']['port'],
             "use_unicode": True,
-            "charset": "utf8", #utf8mb4
+            "charset": "utf8", # regarded as utf8mb4
         }
 
         self.conn_control = pymysql.connect(**mysql_config)
@@ -51,13 +51,17 @@ class BasicTestCase(unittest.TestCase):
 		    t TIMESTAMP)
             """
         )
+        
         self.execute("INSERT INTO basic_replication(id, f, t) VALUES(1, 12.34, '2023-09-25 00:00:00')")
+        self.execute("INSERT INTO basic_replication(id, f, t) VALUES(2, 12.34, '2023-09-25 00:00:00')")
         self.conn_control.commit()
 
         self.execute("UPDATE basic_replication SET f=56.78 WHERE id=1")
+        self.execute("UPDATE basic_replication SET f=56.78 WHERE id=2")
         self.conn_control.commit()
 
         self.execute("DELETE FROM basic_replication WHERE id=1")
+        self.execute("DELETE FROM basic_replication WHERE id=2")
         self.conn_control.commit()
         
         self.pymyelarepl.run()
