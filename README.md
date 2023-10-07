@@ -2,7 +2,7 @@
 
 <img src='pymyelarepl-desc.png'></img>
 
-This project replicates Mysql to Elasticsearch, which is being developed but able to migrate data between the two databases in a simple way.
+This project replicates Mysql to Elasticsearch, reading binlog events and converting them to python objects to jsons.
 
 Note that the project does not supoort HTTPS when migrating.
 
