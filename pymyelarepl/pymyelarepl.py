@@ -6,6 +6,7 @@ import requests
 import yaml
 
 from pymysqlreplication import BinLogStreamReader
+from pymysqlreplication.event import XidEvent
 from pymysqlreplication.row_event import DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent
 
 
@@ -34,7 +35,7 @@ class PyMyElaRepl:
         self.binlog_stream_reader = BinLogStreamReader(
             connection_settings=self.mysql_conf,
             server_id=self.config['mysql']['server_id'],
-            only_events=[DeleteRowsEvent, WriteRowsEvent, UpdateRowsEvent],
+            only_events=[DeleteRowsEvent, WriteRowsEvent, UpdateRowsEvent, XidEvent],
             log_file=self.config['mysql']['log_file'],
             log_pos=self.config['mysql']['log_pos'],
             resume_stream=True if self.config['mysql']['log_pos'] != 0 else False, 
@@ -61,22 +62,33 @@ class PyMyElaRepl:
             return str(obj)
         raise TypeError('Type not serializable for obj {obj}'.format(obj=obj))
     
-    def convert_event_to_valid_es_data_format(self, event): 
-        meta = json.dumps({event['action']: {'_index': event['index'], '_id': event['id']}})
+    def convert_event_to_valid_es_data_format(self, event):
+        converted = ''
+
+        for e in event:
+            meta = json.dumps({e['action']: {'_index': e['index'], '_id': e['id']}})
             
-        if event['action'] == 'delete':
-            converted = meta + '\n'
-        elif event['action'] == 'update':
-            body = json.dumps({'doc': event['doc']}, default=self.serialize_not_serializable)
-            converted = meta + '\n' + body + '\n'
-        elif event['action'] == 'create':
-            body = json.dumps(event['doc'], default=self.serialize_not_serializable)
-            converted = meta + '\n' + body + '\n'
+            if e['action'] == 'delete':
+                converted += ''.join([meta, '\n'])
+            elif e['action'] == 'update':
+                body = json.dumps({'doc': e['doc']}, default=self.serialize_not_serializable)
+                converted += ''.join([meta, '\n', body, '\n'])
+            elif e['action'] == 'create':
+                body = json.dumps(e['doc'], default=self.serialize_not_serializable)
+                converted += ''.join([meta, '\n', body, '\n'])
         
         return converted
 
-    def get_binlog_event(self):        
+    def get_binlog_event(self):
+        extracted_collection = []
+
         for event in self.binlog_stream_reader:
+            if isinstance(event, XidEvent):
+                yield extracted_collection
+
+                extracted_collection = []
+                continue
+
             for row in event.rows: 
                 if isinstance(event, DeleteRowsEvent):
                     extracted = {
@@ -99,7 +111,7 @@ class PyMyElaRepl:
                         'doc': {k: v for k, v in row['values'].items() if k != event.primary_key}
                     }
 
-                yield extracted
+                extracted_collection.append(extracted)
 
         self.binlog_stream_reader.close()
         print('Info: Mysql connection closed successfully after reading all binlog events.')
